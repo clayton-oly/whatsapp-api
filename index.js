@@ -2,11 +2,14 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { Client, RemoteAuth } = require('whatsapp-web.js');
 const { MongoStore } = require('wwebjs-mongo');
-const qrcode = require('qrcode-terminal');
+const qrcodeTerminal = require('qrcode-terminal');
+const QRCode = require('qrcode');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+let lastQR = null; // guarda QR para a rota
 
 async function start() {
     try {
@@ -28,23 +31,32 @@ async function start() {
             }
         });
 
-        // QR Code no terminal na primeira vez
+        // QR Code
         client.on('qr', (qr) => {
-            qrcode.generate(qr, { small: true });
+            lastQR = qr;
+            console.log('📲 QR Code gerado, acesse /qr para visualizar ou use QR no terminal:');
+            qrcodeTerminal.generate(qr, { small: true });
         });
 
         client.on('ready', () => {
             console.log('✅ Bot conectado ao WhatsApp!');
         });
 
-        // Inicializa cliente
         client.initialize();
 
-        // Rotas
+        // Rota teste
         app.get('/', (req, res) => {
             res.send('🚀 API do WhatsApp rodando!');
         });
 
+        // Rota QR Code
+        app.get('/qr', async (req, res) => {
+            if (!lastQR) return res.send('QR Code ainda não gerado.');
+            const qrImage = await QRCode.toDataURL(lastQR);
+            res.send(`<h1>Escaneie o QR Code no WhatsApp</h1><img src="${qrImage}" alt="QR Code WhatsApp"/>`);
+        });
+
+        // Rota para pegar foto
         app.get('/getPhoto', async (req, res) => {
             try {
                 const numero = req.query.numero; // ex: 5511999999999
