@@ -9,6 +9,9 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Middleware para JSON
+app.use(express.json());
+
 let lastQR = null; // guarda QR para a rota
 
 async function start() {
@@ -36,10 +39,19 @@ async function start() {
             lastQR = qr;
             console.log('📲 QR Code gerado, acesse /qr para visualizar ou use QR no terminal:');
             qrcodeTerminal.generate(qr, { small: true });
+
+            // Expira o QR após 5 minutos
+            setTimeout(() => { lastQR = null; }, 5 * 60 * 1000);
         });
 
         client.on('ready', () => {
             console.log('✅ Bot conectado ao WhatsApp!');
+        });
+
+        client.on('disconnected', (reason) => {
+            console.log('❌ Cliente desconectado:', reason);
+            client.destroy();
+            client.initialize();
         });
 
         client.initialize();
@@ -51,19 +63,28 @@ async function start() {
 
         // Rota QR Code
         app.get('/qr', async (req, res) => {
-            if (!lastQR) return res.send('QR Code ainda não gerado.');
-            const qrImage = await QRCode.toDataURL(lastQR);
-            res.send(`<h1>Escaneie o QR Code no WhatsApp</h1><img src="${qrImage}" alt="QR Code WhatsApp"/>`);
+            if (!lastQR) return res.send('QR Code ainda não gerado ou expirado.');
+            try {
+                const qrImage = await QRCode.toDataURL(lastQR);
+                res.send(`<h1>Escaneie o QR Code no WhatsApp</h1><img src="${qrImage}" alt="QR Code WhatsApp"/>`);
+            } catch (err) {
+                console.error('Erro ao gerar QR:', err);
+                res.status(500).send('Erro ao gerar QR Code');
+            }
         });
 
-        // Rota para pegar foto
+        // Rota para pegar foto de perfil
         app.get('/getPhoto', async (req, res) => {
             try {
                 const numero = req.query.numero; // ex: 5511999999999
                 if (!numero) return res.status(400).json({ error: 'Número não informado' });
 
+                if (!client.info) {
+                    return res.status(400).json({ error: 'Cliente ainda não está pronto' });
+                }
+
                 const jid = `${numero}@c.us`;
-                const url = await client.getProfilePicUrl(jid);
+                const url = await client.getProfilePicUrl(jid).catch(() => null);
 
                 if (url) {
                     res.json({ numero, foto: url });
