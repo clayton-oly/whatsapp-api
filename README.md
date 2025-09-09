@@ -31,70 +31,79 @@ API para consultar **fotos de perfil do WhatsApp** e gerenciar sessão via **Mon
 ```bash
 git clone <seu-repo-url>
 cd whatsapp-api
-Instale as dependências:
+```
 
-bash
-Copiar código
+2. Instale as dependências:
+
+```bash
 npm install
-Crie um arquivo .env na raiz do projeto:
+```
 
-ini
-Copiar código
+3. Crie um arquivo `.env` na raiz do projeto:
+
+```
 PORT=3000
 MONGO_URI=mongodb+srv://<usuario>:<senha>@cluster0.abcd123.mongodb.net/whatsapp?retryWrites=true&w=majority
-Substitua <usuario> e <senha> pelos dados do seu MongoDB Atlas.
+```
 
-Inicie o servidor:
+> Substitua `<usuario>` e `<senha>` pelos dados do seu MongoDB Atlas.
 
-bash
-Copiar código
+4. Inicie o servidor:
+
+```bash
 npm start
-Teste os endpoints:
+```
 
-http://localhost:3000/ → API rodando
+5. Teste os endpoints:
 
-http://localhost:3000/qr → QR Code WhatsApp
+- `http://localhost:3000/` → API rodando  
+- `http://localhost:3000/qr` → QR Code WhatsApp  
+- `http://localhost:3000/getPhoto?numero=5511999999999` → busca foto de perfil
 
-http://localhost:3000/getPhoto?numero=5511999999999 → busca foto de perfil
+---
 
-☁️ Deploy no Render
-Crie um repositório GitHub com o projeto.
+## ☁️ Deploy no Render
 
-Crie um Web Service no Render e conecte o repositório.
+1. Crie um repositório GitHub com o projeto.
+2. Crie um **Web Service** no Render e conecte o repositório.
+3. Configure **Environment Variables**:
 
-Configure Environment Variables:
-
-ini
-Copiar código
+```
 MONGO_URI=<sua conexão Atlas>
 PORT=10000
-Deploy → abra https://SEUAPP.onrender.com/qr para escanear QR Code (primeira vez).
+```
 
-Depois, use /getPhoto?numero=... normalmente.
+4. Deploy → abra `https://SEUAPP.onrender.com/qr` para escanear QR Code (primeira vez).  
+5. Depois, use `/getPhoto?numero=...` normalmente.
 
-🎨 Estrutura do Projeto
-pgsql
-Copiar código
+---
+
+## 🎨 Estrutura do Projeto
+
+```
 whatsapp-api/
 │── package.json
 │── index.js
 │── .gitignore
 │── README.md
-📌 Observações
-O número consultado precisa ter WhatsApp e foto de perfil pública.
+```
 
-A sessão é salva no MongoDB, evitando necessidade de escanear QR Code toda vez.
+---
 
-Evite uso abusivo para não ter seu número banido.
+## 📌 Observações
 
-🎥 Demonstração (Exemplo de uso)
-1. Acessando QR Code
+- O número consultado precisa ter WhatsApp e foto de perfil pública.  
+- A sessão é salva no MongoDB, evitando necessidade de escanear QR Code toda vez.  
+- Evite uso abusivo para não ter seu número banido.
 
-2. Buscando Foto de Perfil
+---
 
-📚 Referências
-whatsapp-web.js
+## 📚 Referências
 
-wwebjs-mongo
+- [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js)  
+- [wwebjs-mongo](https://github.com/open-wa/wwebjs-mongo)  
+- [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
 
-MongoDB Atlas
+---
+
+**Observação:** Para baixar este README, clique em **"Raw"** no GitHub e depois **Ctrl+S / Cmd+S** para salvar o arquivo em sua máquina como `README.md`.
