@@ -1,0 +1,13 @@
+2025/10/10-20:13:11.528 6f1c Reusing MANIFEST E:\DEV\whatsapp-api\.wwebjs_auth\RemoteAuth\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2025/10/10-20:13:11.528 6f1c Recovering log #27
+2025/10/10-20:13:11.529 6f1c Reusing old log E:\DEV\whatsapp-api\.wwebjs_auth\RemoteAuth\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000027.log 
+2025/10/10-20:13:11.826 73b4 Level-0 table #32: started
+2025/10/10-20:13:11.894 73b4 Level-0 table #32: 36038 bytes OK
+2025/10/10-20:13:11.924 73b4 Delete type=0 #27
+2025/10/10-20:13:11.924 73b4 Manual compaction at level-0 from '\x00\x1a\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x1b\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/10/10-20:13:13.280 73b4 Compacting 1@1 + 1@2 files
+2025/10/10-20:13:13.353 73b4 Generated table #33@1: 16259 keys, 586718 bytes
+2025/10/10-20:13:13.353 73b4 Compacted 1@1 + 1@2 files => 586718 bytes
+2025/10/10-20:13:13.374 73b4 compacted to: files[ 0 0 1 0 0 0 0 ]
+2025/10/10-20:13:13.374 73b4 Delete type=2 #29
+2025/10/10-20:13:13.374 73b4 Delete type=2 #32
