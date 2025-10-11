@@ -6,20 +6,31 @@ const { MongoStore } = require('wwebjs-mongo');
 const qrcodeTerminal = require('qrcode-terminal');
 const QRCode = require('qrcode');
 const axios = require('axios');
+const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Conexão com MongoDB Atlas
-const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://whatsappUser:wYvXsBArkDTQ8a0C@cluster0.afuoeud.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-
+// ================================
+// MIDDLEWARES
+// ================================
 app.use(express.json());
-
-let lastQR = null; // guarda QR temporário
-let client;       // client WhatsApp global
+app.use(cors()); // libera CORS para qualquer site
 
 // ================================
-// INICIALIZAÇÃO
+// CONEXÃO COM MONGO
+// ================================
+const MONGO_URI = process.env.MONGO_URI || 
+  "mongodb+srv://whatsappUser:wYvXsBArkDTQ8a0C@cluster0.afuoeud.mongodb.net/?retryWrites=true&w=majority";
+
+// ================================
+// VARIÁVEIS GLOBAIS
+// ================================
+let lastQR = null;
+let client;
+
+// ================================
+// FUNÇÃO DE INICIALIZAÇÃO
 // ================================
 async function start() {
     try {
@@ -41,20 +52,18 @@ async function start() {
         });
 
         // ================================
-        // EVENTOS
+        // EVENTOS DO CLIENT
         // ================================
         client.on('qr', (qr) => {
             lastQR = qr;
-            console.log('📲 QR Code gerado, acesse /qr ou use no terminal:');
+            console.log('📲 QR Code gerado:');
             qrcodeTerminal.generate(qr, { small: true });
 
             // Expira QR após 5 min
             setTimeout(() => { lastQR = null; }, 5 * 60 * 1000);
         });
 
-        client.on('ready', () => {
-            console.log('✅ Bot conectado ao WhatsApp!');
-        });
+        client.on('ready', () => console.log('✅ Bot conectado ao WhatsApp!'));
 
         client.on('disconnected', (reason) => {
             console.log('❌ Cliente desconectado:', reason);
@@ -67,11 +76,11 @@ async function start() {
         // ================================
         // ROTAS
         // ================================
+        app.get('/', (req, res) => {
+            console.log('Rodando API'); // ✅ imprime no console
+            res.send('🚀 API do WhatsApp rodando!');
+        });
 
-        // Rota teste
-        app.get('/', (req, res) => res.send('🚀 API do WhatsApp rodando!'));
-
-        // QR Code
         app.get('/qr', async (req, res) => {
             if (!lastQR) return res.send('QR Code ainda não gerado ou expirado.');
             try {
@@ -84,15 +93,15 @@ async function start() {
         });
 
         // ================================
-        // Proxy de foto do WhatsApp (aguarda client pronto)
+        // ROTA GETPHOTO
         // ================================
         app.get('/getPhoto', async (req, res) => {
             try {
                 const numero = req.query.numero;
                 if (!numero) return res.status(400).send('Número não informado');
 
-                // Aguarda client ficar pronto
-                const waitClientReady = async (timeout = 30000) => {
+                // Aguarda client pronto (intervalo aumentado para 1 minuto)
+                const waitClientReady = async (timeout = 60000) => {
                     const interval = 500;
                     const maxTries = timeout / interval;
                     let tries = 0;
@@ -123,7 +132,7 @@ async function start() {
         });
 
         // ================================
-        // SERVIDOR
+        // INICIA SERVIDOR
         // ================================
         app.listen(PORT, () => console.log(`🚀 Servidor rodando na porta ${PORT}`));
 
