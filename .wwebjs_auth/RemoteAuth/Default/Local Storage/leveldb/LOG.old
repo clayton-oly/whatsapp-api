@@ -1,2 +1,3 @@
-2025/10/10-20:03:25.217 5f28 Creating DB E:\DEV\whatsapp-api\.wwebjs_auth\RemoteAuth\Default\Local Storage\leveldb since it was missing.
-2025/10/10-20:03:25.650 5f28 Reusing MANIFEST E:\DEV\whatsapp-api\.wwebjs_auth\RemoteAuth\Default\Local Storage\leveldb/MANIFEST-000001
+2025/10/10-23:55:28.347 48 Reusing MANIFEST /opt/render/project/src/.wwebjs_auth/RemoteAuth/Default/Local Storage/leveldb/MANIFEST-000001
+2025/10/10-23:55:28.445 48 Recovering log #3
+2025/10/10-23:55:28.445 48 Reusing old log /opt/render/project/src/.wwebjs_auth/RemoteAuth/Default/Local Storage/leveldb/000003.log 
