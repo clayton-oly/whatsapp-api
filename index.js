@@ -105,24 +105,14 @@ async function start() {
         app.get('/getPhoto', async (req, res) => {
             try {
                 const numero = req.query.numero;
-                if (!numero) {
-                    return res.status(400).json({ error: "Número não informado" });
-                }
+                if (!numero) return res.status(400).json({ error: "Número não informado" });
 
                 const jid = `${numero}@c.us`;
-
-                // Buscar contato completo
-                const contact = await client.getContactById(jid);
-
                 const url = await client.getProfilePicUrl(jid).catch(() => null);
 
-                res.json({
-                    foto: url,
-                    nome: contact?.pushname || null,
-                });
+                res.json({ foto: url }); // <- JSON!
 
             } catch (err) {
-                console.error("Erro ao buscar dados:", err);
                 res.status(500).json({ error: err.message });
             }
         });
