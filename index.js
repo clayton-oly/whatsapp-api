@@ -110,15 +110,19 @@ async function start() {
                 }
 
                 const jid = `${numero}@c.us`;
+
+                // Buscar contato completo
+                const contact = await client.getContactById(jid);
+
                 const url = await client.getProfilePicUrl(jid).catch(() => null);
 
-                if (!url) {
-                    return res.json({ foto: null });
-                }
-
-                res.json({ foto: url });
+                res.json({
+                    foto: url,
+                    nome: contact?.pushname || null,
+                });
 
             } catch (err) {
+                console.error("Erro ao buscar dados:", err);
                 res.status(500).json({ error: err.message });
             }
         });
