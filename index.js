@@ -105,22 +105,21 @@ async function start() {
         app.get('/getPhoto', async (req, res) => {
             try {
                 const numero = req.query.numero;
-                if (!numero) return res.status(400).send('Número não informado');
-
-                if (!client.info) throw new Error('Cliente não está pronto');
+                if (!numero) {
+                    return res.status(400).json({ error: "Número não informado" });
+                }
 
                 const jid = `${numero}@c.us`;
                 const url = await client.getProfilePicUrl(jid).catch(() => null);
 
-                if (!url) return res.status(404).send('Sem foto');
+                if (!url) {
+                    return res.json({ foto: null });
+                }
 
-                const response = await axios.get(url, { responseType: 'arraybuffer' });
-                res.set('Content-Type', 'image/jpeg');
-                res.send(response.data);
+                res.json({ foto: url });
 
             } catch (err) {
-                console.error(err);
-                res.status(500).send({ error: err.message || 'Erro ao buscar foto' });
+                res.status(500).json({ error: err.message });
             }
         });
 
