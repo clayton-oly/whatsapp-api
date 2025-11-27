@@ -15,36 +15,40 @@ const PORT = process.env.PORT || 3000;
 // MIDDLEWARES
 // ================================
 app.use(express.json());
-app.use(cors()); // libera CORS para qualquer site
+app.use(cors());
 
 // ================================
-// CONEXÃO COM MONGO
+// CONEXÃO MONGO
 // ================================
-const MONGO_URI = process.env.MONGO_URI || 
-  "mongodb+srv://whatsappUser:wYvXsBArkDTQ8a0C@cluster0.afuoeud.mongodb.net/?retryWrites=true&w=majority";
+const MONGO_URI = process.env.MONGO_URI ||
+    "mongodb+srv://whatsappUser:wYvXsBArkDTQ8a0C@cluster0.afuoeud.mongodb.net/?retryWrites=true&w=majority";
 
-// ================================
-// VARIÁVEIS GLOBAIS
-// ================================
 let lastQR = null;
 let client;
 
-// ================================
-// FUNÇÃO DE INICIALIZAÇÃO
-// ================================
 async function start() {
     try {
         if (!MONGO_URI) throw new Error('MONGO_URI não definido!');
 
-        await mongoose.connect(MONGO_URI);
+        await mongoose.connect(MONGO_URI, {
+            serverSelectionTimeoutMS: 30000,
+            maxPoolSize: 10,
+            minPoolSize: 1,
+            socketTimeoutMS: 45000,
+            heartbeatFrequencyMS: 10000,
+        });
+
         console.log('📦 Conectado ao MongoDB Atlas');
 
-        const store = new MongoStore({ mongoose });
+        const store = new MongoStore({
+            mongoose,
+            collectionName: 'whatsappSessions',
+        });
 
         client = new Client({
             authStrategy: new RemoteAuth({
                 store,
-                backupSyncIntervalMs: 300000, // 5 minutos
+                backupSyncIntervalMs: 60000,
             }),
             puppeteer: {
                 args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -52,23 +56,31 @@ async function start() {
         });
 
         // ================================
-        // EVENTOS DO CLIENT
+        // EVENTOS
         // ================================
         client.on('qr', (qr) => {
             lastQR = qr;
-            console.log('📲 QR Code gerado:');
+            console.log('📲 QR Code gerado!');
             qrcodeTerminal.generate(qr, { small: true });
 
-            // Expira QR após 5 min
-            setTimeout(() => { lastQR = null; }, 5 * 60 * 1000);
+            setTimeout(() => { lastQR = null; }, 300000); // expira em 5 min
         });
 
-        client.on('ready', () => console.log('✅ Bot conectado ao WhatsApp!'));
+        client.on('ready', () => {
+            console.log('✅ Bot conectado ao WhatsApp!');
+        });
+
+        client.on('auth_failure', (msg) => {
+            console.log('⚠️ Falha na autenticação:', msg);
+        });
+
+        client.on('remote_session_saved', () => {
+            console.log("💾 Sessão salva com sucesso no MongoDB!");
+        });
 
         client.on('disconnected', (reason) => {
             console.log('❌ Cliente desconectado:', reason);
-            client.destroy();
-            client.initialize();
+            console.log('⌛ Aguardando reconexão automática via RemoteAuth...');
         });
 
         client.initialize();
@@ -77,44 +89,25 @@ async function start() {
         // ROTAS
         // ================================
         app.get('/', (req, res) => {
-            console.log('Rodando API'); // ✅ imprime no console
             res.send('🚀 API do WhatsApp rodando!');
         });
 
         app.get('/qr', async (req, res) => {
-            if (!lastQR) return res.send('QR Code ainda não gerado ou expirado.');
+            if (!lastQR) return res.send('QR Code não disponível no momento.');
             try {
                 const qrImage = await QRCode.toDataURL(lastQR);
-                res.send(`<h1>Escaneie o QR Code no WhatsApp</h1><img src="${qrImage}" alt="QR Code WhatsApp"/>`);
-            } catch (err) {
-                console.error('Erro ao gerar QR:', err);
-                res.status(500).send('Erro ao gerar QR Code');
+                res.send(`<h1>Escaneie o QR Code</h1><img src="${qrImage}" />`);
+            } catch (e) {
+                res.status(500).send('Erro ao gerar QR');
             }
         });
 
-        // ================================
-        // ROTA GETPHOTO
-        // ================================
         app.get('/getPhoto', async (req, res) => {
             try {
                 const numero = req.query.numero;
                 if (!numero) return res.status(400).send('Número não informado');
 
-                // Aguarda client pronto (intervalo aumentado para 1 minuto)
-                const waitClientReady = async (timeout = 60000) => {
-                    const interval = 500;
-                    const maxTries = timeout / interval;
-                    let tries = 0;
-
-                    while (!client.info && tries < maxTries) {
-                        await new Promise(r => setTimeout(r, interval));
-                        tries++;
-                    }
-
-                    if (!client.info) throw new Error('Cliente WhatsApp não ficou pronto a tempo');
-                };
-
-                await waitClientReady();
+                if (!client.info) throw new Error('Cliente não está pronto');
 
                 const jid = `${numero}@c.us`;
                 const url = await client.getProfilePicUrl(jid).catch(() => null);
@@ -132,12 +125,12 @@ async function start() {
         });
 
         // ================================
-        // INICIA SERVIDOR
+        // SERVIDOR
         // ================================
         app.listen(PORT, () => console.log(`🚀 Servidor rodando na porta ${PORT}`));
 
     } catch (err) {
-        console.error('❌ Erro ao conectar no MongoDB:', err);
+        console.error('❌ Erro geral:', err);
         process.exit(1);
     }
 }

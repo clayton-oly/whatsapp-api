@@ -1,3 +1,2 @@
-2025/10/10-21:21:17.203 20b4 Reusing MANIFEST E:\DEV\whatsapp-api\.wwebjs_auth\RemoteAuth\Default\Local Storage\leveldb/MANIFEST-000001
-2025/10/10-21:21:17.203 20b4 Recovering log #3
-2025/10/10-21:21:17.204 20b4 Reusing old log E:\DEV\whatsapp-api\.wwebjs_auth\RemoteAuth\Default\Local Storage\leveldb/000003.log 
+2025/11/26-23:32:04.122 509c Creating DB E:\DEV\whatsapp-api\.wwebjs_auth\RemoteAuth\Default\Local Storage\leveldb since it was missing.
+2025/11/26-23:32:04.249 509c Reusing MANIFEST E:\DEV\whatsapp-api\.wwebjs_auth\RemoteAuth\Default\Local Storage\leveldb/MANIFEST-000001
