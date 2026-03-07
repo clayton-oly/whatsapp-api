@@ -1,0 +1,8 @@
+2026/01/19-15:59:18.322 ac7d Creating DB /opt/render/project/src/.wwebjs_auth/RemoteAuth/Default/Local Storage/leveldb since it was missing.
+2026/01/19-15:59:18.355 ac7d Reusing MANIFEST /opt/render/project/src/.wwebjs_auth/RemoteAuth/Default/Local Storage/leveldb/MANIFEST-000001
+2026/01/20-05:12:46.149 c1f4 Level-0 table #5: started
+2026/01/20-05:12:46.154 c1f4 Level-0 table #5: 18083 bytes OK
+2026/01/20-05:12:46.156 c1f4 Delete type=0 #3
+2026/01/20-19:07:38.455 d810 Level-0 table #7: started
+2026/01/20-19:07:38.459 d810 Level-0 table #7: 17646 bytes OK
+2026/01/20-19:07:38.547 d810 Delete type=0 #4
